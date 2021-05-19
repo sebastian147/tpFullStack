@@ -65,9 +65,12 @@ const qy = util.promisify(conexion.query).bind(conexion);//permite el uso de asy
         //cuando tengo que usar error inesperado?
     }
     catch(e){
+        if(e.length==0){
+            e.mensaje="error inesperado";
+        }
         //si no se pudo hago esto otro
         console.error(e.message);
-        res.status(413).send({"Error":e.message});
+        res.status(413).send({"mensaje":e.message});
     }
 });
 
@@ -79,9 +82,13 @@ app.get('/categoria', async function (req, res) {
         res.status(200).send(respuesta);
     }
     catch(e){
+        
+        if(e.length==0){
+            e.mensaje=[];
+        }
         //si no se pudo hago esto otro
         console.error(e.message);
-        res.status(413).send({"Error":e.message});
+        res.status(413).send({"mensaje":e.message});
         //[]?
     }
 });
@@ -98,9 +105,12 @@ app.get('/categoria/:id', async function (req, res) {
         res.status(200).send(respuesta[0]);
     }
     catch(e){
+        if(e.length==0){
+            e.mensaje="error inesperado";
+        }
         //si no se pudo hago esto otro
         console.error(e.message);
-        res.status(413).send({"Error":e.message});
+        res.status(413).send({"mensaje":e.message});
     }
 });
 
@@ -118,12 +128,15 @@ app.delete('/categoria/:id', async function (req, res) {
         }
         query = 'DELETE FROM categoria WHERE id = ?';//cuidado con el delete, si no le pongo el where borro toda la tabla
         respuesta = await qy(query, [req.params.id]);
-        res.status(200).send("Se borro correctamente");
+        res.status(200).send({mensaje:"se borro correctamente"});
     }
     catch(e){
+        if(e.length==0){
+            e.mensaje="error inesperado";
+        }
         //si no se pudo hago esto otro
         console.error(e.message);
-        res.status(413).send({"Error":e.message});
+        res.status(413).send({"mensaje":e.message});
     }
 });
 
