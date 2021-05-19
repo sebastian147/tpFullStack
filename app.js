@@ -48,9 +48,84 @@ const qy = util.promisify(conexion.query).bind(conexion);//permite el uso de asy
  * No se debe implementar el PUT
  * 
  */
+ app.post('/categoria', async function (req, res) {
+    try{
+        if(!req.body.nombre){
+            throw new Error('faltan datos');// esto salta al catch
+        }
+        const nombre = req.body.nombre.toUpperCase();
+        let query = 'SELECT id FROM categoria WHERE nombre = ?';
+        let respuesta = await qy(query, [nombre]);
+        if(respuesta.length > 0){//si el string tiene tamaño significa que existe
+            throw new Error('ese nombre de categoria ya existe');
+        }
+        query = 'INSERT INTO categoria (nombre) VALUE (?)';
+        respuesta = await qy(query, [nombre]);
+        res.status(200).send({"id":respuesta.insertId,"nombre":nombre});
+        //cuando tengo que usar error inesperado?
+    }
+    catch(e){
+        //si no se pudo hago esto otro
+        console.error(e.message);
+        res.status(413).send({"Error":e.message});
+    }
+});
 
+app.get('/categoria', async function (req, res) {
+    try{
+        const query = 'SELECT * FROM categoria';
+        const respuesta = await qy(query);
 
+        res.status(200).send(respuesta);
+    }
+    catch(e){
+        //si no se pudo hago esto otro
+        console.error(e.message);
+        res.status(413).send({"Error":e.message});
+        //[]?
+    }
+});
 
+app.get('/categoria/:id', async function (req, res) {
+    try{
+        const query = 'SELECT * FROM categoria WHERE id = ?';
+
+        const respuesta = await qy(query, req.params.id);
+        if(respuesta.length==0)
+        {
+            throw new Error('categoria no encontrada');
+        }
+        res.status(200).send(respuesta[0]);
+    }
+    catch(e){
+        //si no se pudo hago esto otro
+        console.error(e.message);
+        res.status(413).send({"Error":e.message});
+    }
+});
+
+app.delete('/categoria/:id', async function (req, res) {
+    try{
+        let query = 'SELECT * FROM libro WHERE categoria_id = ?';
+        let respuesta = await qy(query, [req.params.id]);
+        if(respuesta.length>0){
+            throw new Error("categoria con libros asociados, no se puede eliminar");//verificar
+        }
+        query = 'SELECT * FROM categoria WHERE id = ?';
+        respuesta = await qy(query, [req.params.id]);
+        if(respuesta.length==0){
+            throw new Error("no existe la categoria indicada");
+        }
+        query = 'DELETE FROM categoria WHERE id = ?';//cuidado con el delete, si no le pongo el where borro toda la tabla
+        respuesta = await qy(query, [req.params.id]);
+        res.status(200).send("Se borro correctamente");
+    }
+    catch(e){
+        //si no se pudo hago esto otro
+        console.error(e.message);
+        res.status(413).send({"Error":e.message});
+    }
+});
 
 /**
  * PERSONA
