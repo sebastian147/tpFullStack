@@ -1,3 +1,34 @@
+//Inicializacion
+const express  = require ('express');
+const mysql = require('mysql');
+const util = require('util');
+
+const app = express();
+const port = 3000;
+app.use(express.json());//permite el mapeo de la peticion json a objetos js
+
+app.use(express.static(__dirname));
+app.use(express.urlencoded());
+
+const conexion = mysql.createConnection({
+    host: 'localhost',//si fuera un server pongo la dir del server
+    user:'root',
+    password: '',//depende como me logueo en el php my admin
+    database: 'fullstack_m3tpfinal'
+})
+conexion.connect((error)=>{
+    if(error){
+        throw error; //salta al catch con el error
+    }
+    else
+    {
+        console.log('Conexion con la base de daros mysql establecida');
+    }
+});
+const qy = util.promisify(conexion.query).bind(conexion);//permite el uso de asyn await en la conexion mysql
+//Finalizacion inicializacion
+
+
 /**
  * CATEGORIA
  * 
@@ -76,3 +107,8 @@
 
 
 
+//Escucha servidor
+app.listen(3000, function () {
+    console.log('Example app listening on port 3000!');
+});
+   
