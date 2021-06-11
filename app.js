@@ -238,7 +238,9 @@ app.put('/persona/:id', async(req, res) => {
 
         respuesta = await qy(query, [nombre, apellido, alias, req.params.id]);
 
-        res.status(200).send({ "id": req.params.id, "nombre": nombre, "apellido":apellido, "alias":alias, "email":req.body.email});
+        query = 'SELECT * FROM persona WHERE id = ?';
+        respuesta = await qy(query, req.params.id);
+        res.status(200).send(respuesta[0]);
 
     } 
     catch (e) {
@@ -408,7 +410,9 @@ app.put('/libro/:id', async function(req, res) {//faltan errores revisar
         }
         query = 'UPDATE libro SET descripcion = ? WHERE id = ?';
         respuesta = await qy(query, [descripcion, req.params.id]);
-        res.status(200).send({ "id": req.params.id, "nombre": req.body.nombre, "descripcion":descripcion, "categoria_id":req.body.categoria_id, "persona_id":req.body.persona_id });
+        query = 'SELECT * FROM libro WHERE id = ?';
+        respuesta = await qy(query, req.params.id);
+        res.status(200).send(respuesta[0]);
     } 
     catch (e) {
         if (e.name != "Error") {
