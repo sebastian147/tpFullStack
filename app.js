@@ -14,13 +14,13 @@ const conexion = mysql.createConnection({
     host: 'localhost', //si fuera un server pongo la dir del server
     user: 'root',
     password: '', //depende como me logueo en el php my admin
-    database: 'fullstack_m3tpfinal'
+    database: 'fullstack_m3tpfinal'//depende del nombre de mi base de datos
 })
 conexion.connect((error) => {
     if (error) {
         throw error; //salta al catch con el error
     } else {
-        console.log('Conexion con la base de daros mysql establecida');
+        console.log('Conexion con la base de datos mysql establecida');
     }
 });
 const qy = util.promisify(conexion.query).bind(conexion); //permite el uso de asyn await en la conexion mysql
@@ -49,25 +49,28 @@ const qy = util.promisify(conexion.query).bind(conexion); //permite el uso de as
 app.post('/categoria', async function(req, res) {
     try {
         if (!req.body.nombre) {
-            throw new Error('faltan datos'); // esto salta al catch
+            throw new Error('faltan datos'); 
         }
         const nombre = req.body.nombre.toUpperCase();
         let query = 'SELECT id FROM categoria WHERE nombre = ?';
         let respuesta = await qy(query, [nombre]);
-        if (respuesta.length > 0) { //si el string tiene tamaño significa que existe
+        if (respuesta.length > 0) { 
             throw new Error('ese nombre de categoria ya existe');
         }
         query = 'INSERT INTO categoria (nombre) VALUE (?)';
         respuesta = await qy(query, [nombre]);
         res.status(200).send({ "id": respuesta.insertId, "nombre": nombre });
-        //cuando tengo que usar error inesperado?
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+         
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -77,15 +80,10 @@ app.get('/categoria', async function(req, res) {
         const respuesta = await qy(query);
 
         res.status(200).send(respuesta);
-    } catch (e) {
-
-        if (e.length == 0) {
-            e.mensaje = [];
-        }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
-        //[]?
+    } 
+    catch (e) {
+        console.error([]);
+        res.status(413).send({ "mensaje": [] });
     }
 });
 
@@ -98,13 +96,16 @@ app.get('/categoria/:id', async function(req, res) {
             throw new Error('categoria no encontrada');
         }
         res.status(200).send(respuesta[0]);
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -113,23 +114,26 @@ app.delete('/categoria/:id', async function(req, res) {
         let query = 'SELECT * FROM libro WHERE categoria_id = ?';
         let respuesta = await qy(query, [req.params.id]);
         if (respuesta.length > 0) {
-            throw new Error("categoria con libros asociados, no se puede eliminar"); //verificar
+            throw new Error("categoria con libros asociados, no se puede eliminar");
         }
         query = 'SELECT * FROM categoria WHERE id = ?';
         respuesta = await qy(query, [req.params.id]);
         if (respuesta.length == 0) {
             throw new Error("no existe la categoria indicada");
         }
-        query = 'DELETE FROM categoria WHERE id = ?'; //cuidado con el delete, si no le pongo el where borro toda la tabla
+        query = 'DELETE FROM categoria WHERE id = ?';          
         respuesta = await qy(query, [req.params.id]);
         res.status(200).send({ mensaje: "se borro correctamente" });
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -163,16 +167,16 @@ app.post('/persona', async(req, res) => {
 
         console.log(respuesta);
         res.status(200).send({ "id": respuesta.insertId, "nombre": nombre, "apellido":apellido, "alias":alias, "email":email});
-
-
-
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -181,16 +185,12 @@ app.post('/persona', async(req, res) => {
 app.get('/persona', async function(req, res) {
     try {
         const query = 'SELECT * FROM persona';
-        const respuesta = await qy(query, [req.body.nombre, req.body.apellido, req.body.email, req.body.alias]); //cambiar a uppercase
-
+        const respuesta = await qy(query, [req.body.nombre, req.body.apellido, req.body.email, req.body.alias]);
         res.status(200).send(respuesta);
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = [];
-        }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+    } 
+    catch (e) {
+        console.error([]);
+        res.status(413).send({ "mensaje": [] });
     }
 });
 
@@ -206,13 +206,16 @@ app.get('/persona/:id', async function(req, res) {
             throw new Error('no se encuentra esa persona');
         }
         res.status(200).send(respuesta[0]);
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -237,13 +240,16 @@ app.put('/persona/:id', async(req, res) => {
 
         res.status(200).send({ "id": req.params.id, "nombre": nombre, "apellido":apellido, "alias":alias, "email":req.body.email});
 
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -262,16 +268,19 @@ app.delete('/persona/:id', async function(req, res) {
         if (respuesta.length == 0) {
             throw new Error("no existe esa persona");
         }
-        query = 'DELETE FROM persona WHERE id = ?'; //cuidado con el delete, si no le pongo el where borro toda la tabla
+        query = 'DELETE FROM persona WHERE id = ?';          
         respuesta = await qy(query, [req.params.id]);
         res.status(200).send({ mensaje: "se borro correctamente" });
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -304,17 +313,17 @@ app.delete('/persona/:id', async function(req, res) {
  app.post('/libro', async function(req, res) {
     try {
         if (!req.body.nombre || !req.body.categoria_id) {
-            throw new Error('nombre y categoria son datos obligatorios'); // esto salta al catch
+            throw new Error('nombre y categoria son datos obligatorios'); 
         }
         const nombre = req.body.nombre.toUpperCase();
         let query = 'SELECT id FROM libro WHERE nombre = ?';
         let respuesta = await qy(query, nombre);
-        if (respuesta.length > 0) { //si el string tiene tamaño significa que existe
+        if (respuesta.length > 0) { 
             throw new Error('ese libro ya existe');
         }
         query = 'SELECT * FROM categoria WHERE id = ?';
         respuesta = await qy(query, req.body.categoria_id);
-        if (respuesta.length == 0) { //si el string tiene tamaño significa que existe
+        if (respuesta.length == 0) { 
             throw new Error('no existe la categoria indicada');
         }
         let persona_id = req.body.persona_id;
@@ -324,7 +333,7 @@ app.delete('/persona/:id', async function(req, res) {
         else{
             query = 'SELECT * FROM persona WHERE id = ?';
             respuesta = await qy(query, persona_id);
-            if (respuesta.length == 0) { //si el string tiene tamaño significa que existe
+            if (respuesta.length == 0) { 
                 throw new Error('no existe la persona indicada');
             }
         }
@@ -335,13 +344,16 @@ app.delete('/persona/:id', async function(req, res) {
         query = 'INSERT INTO libro (nombre, descripcion, categoria_id, persona_id) VALUE (?, ?, ?, ?)';
         respuesta = await qy(query, [nombre, descripcion, req.body.categoria_id, persona_id]);
         res.status(200).send({ "id": respuesta.insertId, "nombre": nombre, "descripcion":descripcion, "categoria_id":req.body.categoria_id, "persona_id":persona_id });
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -351,15 +363,16 @@ app.get('/libro', async function(req, res) {
         const respuesta = await qy(query);
 
         res.status(200).send(respuesta);
-    } catch (e) {
-
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
-        //[]?
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -372,13 +385,16 @@ app.get('/libro/:id', async function(req, res) {
             throw new Error('no se encuentra ese libro');
         }
         res.status(200).send(respuesta[0]);
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -393,13 +409,16 @@ app.put('/libro/:id', async function(req, res) {//faltan errores revisar
         query = 'UPDATE libro SET descripcion = ? WHERE id = ?';
         respuesta = await qy(query, [descripcion, req.params.id]);
         res.status(200).send({ "id": req.params.id, "nombre": req.body.nombre, "descripcion":descripcion, "categoria_id":req.body.categoria_id, "persona_id":req.body.persona_id });
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -423,13 +442,16 @@ app.put('/libro/prestar/:id', async function(req, res) {
         query = 'UPDATE libro SET persona_id = ? WHERE id = ?';
         respuesta = await qy(query, [req.body.persona_id, req.params.id]);
         res.status(200).send({mesnaje: "se presto correctamente"});
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -448,13 +470,16 @@ app.put('/libro/devolver/:id', async function(req, res) {
         query = 'UPDATE libro SET persona_id = ? WHERE id = ?';
         respuesta = await qy(query, [null, req.params.id]);
         res.status(200).send({mesnaje: "se realizo la devolucion correctamente"});
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
@@ -470,16 +495,19 @@ app.delete('/libro/:id', async function(req, res) {
         if (respuesta[0].persona_id != null) {
             throw new Error("ese libro esta prestado no se puede borrar");
         }
-        query = 'DELETE FROM libro WHERE id = ?'; //cuidado con el delete, si no le pongo el where borro toda la tabla
+        query = 'DELETE FROM libro WHERE id = ?';          
         respuesta = await qy(query, req.params.id);
         res.status(200).send({ mensaje: "se borro correctamente" });
-    } catch (e) {
-        if (e.length == 0) {
-            e.mensaje = "error inesperado";
+    } 
+    catch (e) {
+        if (e.name != "Error") {
+            console.error("error inesperado");
+            res.status(413).send({ "mensaje": "error inesperado" });
         }
-        //si no se pudo hago esto otro
-        console.error(e.message);
-        res.status(413).send({ "mensaje": e.message });
+        else{
+            console.error(e.message);
+            res.status(413).send({ "mensaje": e.message });
+        }
     }
 });
 
