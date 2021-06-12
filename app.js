@@ -48,7 +48,7 @@ const qy = util.promisify(conexion.query).bind(conexion); //permite el uso de as
  */
 app.post('/categoria', async function(req, res) {
     try {
-        if (!req.body.nombre) {
+        if (!req.body.nombre || !req.body.nombre.trim()) {
             throw new Error('faltan datos'); 
         }
         const nombre = req.body.nombre.toUpperCase();
@@ -147,7 +147,7 @@ app.delete('/categoria/:id', async function(req, res) {
  */
 app.post('/persona', async(req, res) => {
     try {
-        if(!req.body.nombre || !req.body.apellido || !req.body.email || !req.body.alias){
+        if(!req.body.nombre || !req.body.nombre.trim() || !req.body.apellido || !req.body.apellido.trim() || !req.body.email || !req.body.email.trim() || !req.body.alias || !req.body.alias.trim()){
             throw new Error('faltan datos');
         }
         const nombre = req.body.nombre.toUpperCase();
@@ -233,7 +233,7 @@ app.put('/persona/:id', async(req, res) => {
         if (respuesta.length == 0) {
             throw new Error("no se encuentra esa persona");
         }
-
+        //habria que tener en cuenta que el usuario puede car
         query = 'UPDATE persona SET nombre = ?, apellido = ?, alias = ? WHERE id = ?';
 
         respuesta = await qy(query, [nombre, apellido, alias, req.params.id]);
@@ -314,7 +314,7 @@ app.delete('/persona/:id', async function(req, res) {
  */
  app.post('/libro', async function(req, res) {
     try {
-        if (!req.body.nombre || !req.body.categoria_id) {
+        if (!req.body.nombre || !req.body.nombre.trim() || !req.body.categoria_id) {
             throw new Error('nombre y categoria son datos obligatorios'); 
         }
         const nombre = req.body.nombre.toUpperCase();
