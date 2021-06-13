@@ -1,3 +1,6 @@
+//Este trabajo se podria haber resuelto mediante varios archivos con aplicaciones especificas. Pero por motivos practicos 
+//para la realizacion de el trabajo practico lo dejamos todo en un mismo archivo.
+
 //Inicializacion
 const express = require('express');
 const mysql = require('mysql');
@@ -63,6 +66,7 @@ app.post('/categoria', async function(req, res) {
          
     } 
     catch (e) {
+        //La parte de manejo de errores se podia resolver mediante el uso de una funcion para no repetir el codigo constantemente.
         if (e.name != "Error") {
             console.error("error inesperado");
             res.status(413).send({ "mensaje": "error inesperado" });
@@ -83,7 +87,7 @@ app.get('/categoria', async function(req, res) {
     } 
     catch (e) {
         console.error([]);
-        res.status(413).send({ "mensaje": [] });
+        res.status(413).send([]);
     }
 });
 
@@ -190,7 +194,7 @@ app.get('/persona', async function(req, res) {
     } 
     catch (e) {
         console.error([]);
-        res.status(413).send({ "mensaje": [] });
+        res.status(413).send([]);
     }
 });
 
@@ -224,16 +228,17 @@ app.get('/persona/:id', async function(req, res) {
  */
 app.put('/persona/:id', async(req, res) => {
     try {
+        //habria que tener en cuenta que el usuario puede no cargar alguno de los valores. Pero no estaba contemplado en la consigna. Esto lleva a un error inesperado.
+        //este problema se puede resolver con varios if anidados para fijarse que valor no fue cargado y accionar en funcion de eso.
+        //o mismo si alguno de los datos no fue cargado pedirle que cargue todos(sin contar el email).
         const nombre = req.body.nombre.toUpperCase();
         const apellido = req.body.apellido.toUpperCase();
         const alias = req.body.alias.toUpperCase();
         let query = 'SELECT * FROM persona WHERE id = ?';
-
         let respuesta = await qy(query, req.params.id);
         if (respuesta.length == 0) {
             throw new Error("no se encuentra esa persona");
         }
-        //habria que tener en cuenta que el usuario puede car
         query = 'UPDATE persona SET nombre = ?, apellido = ?, alias = ? WHERE id = ?';
 
         respuesta = await qy(query, [nombre, apellido, alias, req.params.id]);
@@ -263,7 +268,7 @@ app.delete('/persona/:id', async function(req, res) {
         let query = 'SELECT * FROM libro WHERE persona_id = ?';
         let respuesta = await qy(query, [req.params.id]);
         if (respuesta.length > 0) {
-            throw new Error("esa persona tiene libros asociados, no se puede eliminar"); //verificar
+            throw new Error("esa persona tiene libros asociados, no se puede eliminar");
         }
         query = 'SELECT * FROM persona WHERE id = ?';
         respuesta = await qy(query, [req.params.id]);
@@ -400,13 +405,21 @@ app.get('/libro/:id', async function(req, res) {
     }
 });
 
-app.put('/libro/:id', async function(req, res) {//faltan errores revisar
+app.put('/libro/:id', async function(req, res) {
     try {
-        const descripcion = req.body.descripcion.toUpperCase();
+        //Agregamos errores, ademas de los que decia la consigna, por que no nos parecia correcto.
+        //si no los agregabamos tiraba error inesperado
         let query = 'SELECT * FROM libro WHERE id = ?';
         let respuesta = await qy(query, req.params.id);
         if (respuesta == 0) {
             throw new Error("no se encontro el libro");
+        }
+        let descripcion = req.body.descripcion;
+        if(descripcion != null){
+            descripcion = req.body.descripcion.toUpperCase();
+        }
+        else{
+            throw new Error("solo se puede modificar la descripcion del libro, y no se envio valor a modificar de la misma");
         }
         query = 'UPDATE libro SET descripcion = ? WHERE id = ?';
         respuesta = await qy(query, [descripcion, req.params.id]);
@@ -428,6 +441,10 @@ app.put('/libro/:id', async function(req, res) {//faltan errores revisar
 
 app.put('/libro/prestar/:id', async function(req, res) {
     try {
+        //Agrego este error ya que no estaba contemplado por la consigna y lleva a comportamientos no deseados
+        if(!req.body.persona_id){
+            throw new Error("No se indico una persona a la cual prestar el libro");
+        }
         let query = 'SELECT * FROM libro WHERE id = ?';
         let respuesta = await qy(query, req.params.id);
         if (respuesta.length == 0) {
