@@ -5,13 +5,16 @@
 const express = require('express');
 const mysql = require('mysql');
 const util = require('util');
-
+const cors = require('cors');
 const app = express();
 const port = 3000;
+app.use(cors({origin: 'http://localhost:3001', credentials: true}));
+
 app.use(express.json()); //permite el mapeo de la peticion json a objetos js
 
 app.use(express.static(__dirname));
 app.use(express.urlencoded());
+
 
 const conexion = mysql.createConnection({
     host: 'localhost', //si fuera un server pongo la dir del server
