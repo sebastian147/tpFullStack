@@ -8,7 +8,9 @@ const util = require('util');
 const cors = require('cors');
 const app = express();
 const port = 3000;
-app.use(cors({origin: 'http://localhost:3001', credentials: true}));
+
+
+app.use(cors({origin: 'http://localhost:4200', credentials: true}));
 
 app.use(express.json()); //permite el mapeo de la peticion json a objetos js
 
