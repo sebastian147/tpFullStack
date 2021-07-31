@@ -19,9 +19,9 @@ app.use(express.urlencoded());
 
 
 const conexion = mysql.createConnection({
-    host: '192.168.1.8', //si fuera un server pongo la dir del server
-    user: '',
-    password: '4321', //depende como me logueo en el php my admin
+    host: 'sql10.freesqldatabase.com', //si fuera un server pongo la dir del server
+    user: 'sql10428628',
+    password: 'VaS8En87nl', //depende como me logueo en el php my admin
     database: 'fullstack_m3tpfinal'//depende del nombre de mi base de datos
 })
 conexion.connect((error) => {
