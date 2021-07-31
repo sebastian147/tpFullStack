@@ -1,5 +1,5 @@
 Enlaze al repositorio:
-https://github.com/sebastian147/tpFullStack
+https://github.com/maxiporta/frontend
 
 Grupo Numero:
 15

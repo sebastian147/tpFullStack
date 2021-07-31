@@ -7,10 +7,10 @@ const mysql = require('mysql');
 const util = require('util');
 const cors = require('cors');
 const app = express();
-const port = 3000;
+const port = preocess.enc.port
 
 
-app.use(cors({origin: 'http://localhost:4200', credentials: true}));
+app.use(cors({origin: 'http://192.168.1.9:4200', credentials: true}));
 
 app.use(express.json()); //permite el mapeo de la peticion json a objetos js
 
@@ -19,9 +19,9 @@ app.use(express.urlencoded());
 
 
 const conexion = mysql.createConnection({
-    host: 'localhost', //si fuera un server pongo la dir del server
-    user: 'root',
-    password: '', //depende como me logueo en el php my admin
+    host: '192.168.1.8', //si fuera un server pongo la dir del server
+    user: '',
+    password: '4321', //depende como me logueo en el php my admin
     database: 'fullstack_m3tpfinal'//depende del nombre de mi base de datos
 })
 conexion.connect((error) => {
@@ -540,6 +540,6 @@ app.delete('/libro/:id', async function(req, res) {
 
 
 //Escucha servidor
-app.listen(3000, function() {
+app.listen(port, function() {
     console.log('Example app listening on port 3000!');
 });
