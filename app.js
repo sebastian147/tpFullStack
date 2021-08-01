@@ -7,7 +7,7 @@ const mysql = require('mysql');
 const util = require('util');
 const cors = require('cors');
 const app = express();
-const port = preocess.enc.port
+const port = process.env.PORT
 
 
 app.use(cors({origin: 'http://192.168.1.9:4200', credentials: true}));
