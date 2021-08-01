@@ -22,7 +22,7 @@ const conexion = mysql.createConnection({
     host: 'sql10.freesqldatabase.com', //si fuera un server pongo la dir del server
     user: 'sql10428628',
     password: 'VaS8En87nl', //depende como me logueo en el php my admin
-    database: 'fullstack_m3tpfinal'//depende del nombre de mi base de datos
+    database: 'sql10428628'//depende del nombre de mi base de datos
 })
 conexion.connect((error) => {
     if (error) {
@@ -541,5 +541,5 @@ app.delete('/libro/:id', async function(req, res) {
 
 //Escucha servidor
 app.listen(port, function() {
-    console.log('Example app listening on port 3000!');
+    console.log('Example app listening on port'+process.env.PORT+"!");
 });
