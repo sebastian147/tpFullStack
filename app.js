@@ -10,7 +10,7 @@ const app = express();
 const port = process.env.PORT
 
 
-app.use(cors({origin: 'http://192.168.1.9:4200', credentials: true}));
+app.use(cors({origin: 'https://', credentials: true}));
 
 app.use(express.json()); //permite el mapeo de la peticion json a objetos js
 
